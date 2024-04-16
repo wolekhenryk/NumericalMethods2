@@ -1,7 +1,10 @@
 ﻿#include <chrono>
 #include <iostream>
+#include <tuple>
 #include <windows.h>
 
+#include "gauss_seidel.h"
+#include "jacobi.h"
 #include "matrix.h"
 
 constexpr int MATRIX_SIZE = 999;
@@ -10,14 +13,12 @@ constexpr int INDEX_NUMBER = 193399;
 constexpr int E_PARAM = INDEX_NUMBER / 1000 % 10;
 constexpr int F_PARAM = INDEX_NUMBER / 10000 % 10;
 
-void fill_vector_matrix(matrix&);
+void present_jacobi_method(const matrix& a, const matrix& b);
 
-matrix solve_system(const matrix& a, const matrix& b);
+void present_gauss_method(const matrix& a, const matrix& b);
 
 int main() {
 	SetConsoleOutputCP(CP_UTF8);
-
-	const auto start = std::chrono::high_resolution_clock::now();
 
 	constexpr int a1 = 5 + E_PARAM;
 	constexpr int a2 = -1;
@@ -27,27 +28,28 @@ int main() {
 	a.fill_five_diagonals(a1, a2, a3);
 
 	matrix b(MATRIX_SIZE, 1);
-	fill_vector_matrix(b);
+	b.fill_vector_with_sine(F_PARAM);
 
-	const auto solution = solve_system(a, b);
-	std::cout << solution;
-
-	const auto end = std::chrono::high_resolution_clock::now();
-
-	const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	std::cout << "Time: " << duration.count() << "ms\n";
+	present_jacobi_method(a, b);
+	present_gauss_method(a, b);
 
 	return 0;
 }
 
-// Zadanie A
-void fill_vector_matrix(matrix& m) {
-	for (int i = 1; i <= m.rows(); ++i) {
-		m(i - 1, 0) = std::sin(i * (F_PARAM + 1));
-	}
+void present_jacobi_method(const matrix& a, const matrix& b) {
+	std::cout << "\n\nJacobi Method\n\n";
+
+	const std::unique_ptr<solution> jacobi_solver = std::make_unique<jacobi>();
+	const auto [sol_jacobi, iterations, duration] = jacobi_solver->solve(a, b);
+
+	std::cout << "Iterations: " << iterations << "\nDuration: " << duration << "ms\n";
 }
 
-matrix solve_system(const matrix& a, const matrix& b) {
-	matrix result = a.inverse() * b;
-	return result;
+void present_gauss_method(const matrix& a, const matrix& b) {
+	std::cout << "\n\nGauss method\n\n";
+
+	const std::unique_ptr<solution> gauss_solver = std::make_unique<gauss_seidel>();
+	const auto [sol_gauss, iterations, duration] = gauss_solver->solve(a, b);
+
+	std::cout << "Iterations: " << iterations << "\nDuration: " << duration << "ms\n";
 }

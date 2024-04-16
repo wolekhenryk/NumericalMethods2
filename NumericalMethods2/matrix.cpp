@@ -1,6 +1,7 @@
 #include "matrix.h"
 
 #include <algorithm>
+#include <random>
 #include <stdexcept>
 
 matrix::matrix(const int rows, const int cols): rows_(rows), cols_(cols), data_(rows, std::vector<double>(cols, 0)) {
@@ -10,6 +11,28 @@ matrix::matrix(const std::vector<std::vector<double>>& data) {
 	rows_ = static_cast<int>(data.size());
 	cols_ = static_cast<int>(data[0].size());
 	data_ = data;
+}
+
+matrix::matrix(const matrix& other) {
+	rows_ = other.rows_;
+	cols_ = other.cols_;
+	data_ = other.data_;
+}
+
+matrix::matrix(matrix&& other) noexcept {
+	rows_ = other.rows_;
+	cols_ = other.cols_;
+	data_ = std::move(other.data_);
+}
+
+matrix& matrix::operator=(const matrix& other) {
+	if (this == &other) return *this;
+
+	rows_ = other.rows_;
+	cols_ = other.cols_;
+	data_ = other.data_;
+
+	return *this;
 }
 
 int matrix::rows() const { return rows_; }
@@ -28,15 +51,68 @@ matrix matrix::operator*(const matrix& other) const {
 	if (cols_ != other.rows_) throw std::invalid_argument("Matrix dimensions must agree.");
 	matrix result(rows_, other.cols_);
 
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 0; i < rows_; ++i) {
-		for (int k = 0; k < cols_; ++k) { // Innermost loop changes from j to k
+		for (int k = 0; k < cols_; ++k) {
+			// Innermost loop changes from j to k
 			const auto temp = (*this)(i, k);
 			for (int j = 0; j < other.cols_; ++j) {
 				result(i, j) += temp * other(k, j);
 			}
 		}
 	}
+	return result;
+}
+
+matrix matrix::operator+(const matrix& other) const {
+	if (rows_ != other.rows_ || cols_ != other.cols_) throw std::invalid_argument("Matrix dimensions must agree.");
+	matrix result(rows_, cols_);
+
+#pragma omp parallel for
+	for (int i = 0; i < rows_; ++i) {
+		for (int j = 0; j < cols_; ++j) {
+			result(i, j) = (*this)(i, j) + other(i, j);
+		}
+	}
+	return result;
+}
+
+matrix matrix::operator-(const matrix& other) const {
+	if (rows_ != other.rows_ || cols_ != other.cols_) throw std::invalid_argument("Matrix dimensions must agree.");
+	matrix result(rows_, cols_);
+
+#pragma omp parallel for
+	for (int i = 0; i < rows_; ++i) {
+		for (int j = 0; j < cols_; ++j) {
+			result(i, j) = (*this)(i, j) - other(i, j);
+		}
+	}
+	return result;
+}
+
+matrix matrix::operator-() const {
+	matrix result(rows_, cols_);
+
+#pragma omp parallel for
+	for (int i = 0; i < rows_; ++i) {
+		for (int j = 0; j < cols_; ++j) {
+			result(i, j) = -(*this)(i, j);
+		}
+	}
+
+	return result;
+}
+
+matrix matrix::transpose() const {
+	matrix result(cols_, rows_);
+
+#pragma omp parallel for
+	for (int i = 0; i < rows_; ++i) {
+		for (int j = 0; j < cols_; ++j) {
+			result(j, i) = (*this)(i, j);
+		}
+	}
+
 	return result;
 }
 
@@ -95,6 +171,30 @@ matrix matrix::inverse() const {
 	return inv;
 }
 
+
+void matrix::fill(const double value) {
+#pragma omp parallel for
+	for (int i = 0; i < rows_; ++i)
+		std::ranges::fill(data_[i], value);
+}
+
+double matrix::norm() const {
+	if (rows_ != 1 && cols_ != 1)
+		throw std::invalid_argument("Only vectors can be normed.");
+
+	double sum = 0.0;
+	if (rows_ == 1) {
+		for (int i = 0; i < cols_; ++i)
+			sum += std::pow((*this)(0, i), 2);
+	}
+	else {
+		for (int i = 0; i < rows_; ++i)
+			sum += std::pow((*this)(i, 0), 2);
+	}
+
+	return std::sqrt(sum);
+}
+
 void matrix::fill_five_diagonals(const double first, const double second, const double third) {
 	const int range = std::min(rows_, cols_);
 	for (int i = 0; i < range; ++i) {
@@ -115,6 +215,14 @@ void matrix::fill_five_diagonals(const double first, const double second, const 
 		if (i > 1)
 			(*this)(i, i - 2) = third;
 	}
+}
+
+void matrix::fill_vector_with_sine(const int f) {
+	if (rows_ != 1 && cols_ != 1)
+		throw std::invalid_argument("This method accepts only vectors.");
+
+	for (int i = 1; i <= rows_; ++i)
+		(*this)(i - 1, 0) = std::sin(i * (f + 1));
 }
 
 
