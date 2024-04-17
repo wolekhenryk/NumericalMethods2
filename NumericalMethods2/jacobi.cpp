@@ -2,12 +2,14 @@
 
 #include <chrono>
 
-std::tuple<matrix, int, int> jacobi::solve(const matrix& a, const matrix& b) {
+std::tuple<matrix, int, int, std::vector<double>> jacobi::solve(const matrix& a, const matrix& b) {
 	const auto start = std::chrono::high_resolution_clock::now();
 
 	const int n = a.rows();
 	matrix x(n, 1);
 	matrix x_new(n, 1);
+
+	std::vector<double> norms;
 
 	int iteration = 0;
 	for (; iteration < MAX_ITERATIONS; ++iteration) {
@@ -20,8 +22,10 @@ std::tuple<matrix, int, int> jacobi::solve(const matrix& a, const matrix& b) {
 			}
 			x_new(i, 0) = (b(i, 0) - sum) / a(i, i);
 		}
+		const double error = (x_new - x).norm();
+		norms.push_back(error);
 
-		if (const double error = (x_new - x).norm(); error < EPSILON)
+		if (error < EPSILON)
 			break;
 
 		x = x_new;
@@ -30,5 +34,5 @@ std::tuple<matrix, int, int> jacobi::solve(const matrix& a, const matrix& b) {
 	const auto end = std::chrono::high_resolution_clock::now();
 	const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-	return {x_new, iteration, duration};
+	return std::make_tuple(x, iteration, duration, norms);
 }

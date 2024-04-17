@@ -119,7 +119,7 @@ matrix matrix::transpose() const {
 matrix matrix::inverse() const {
 	if (rows_ != cols_) throw std::invalid_argument("Only square matrices can be inverted.");
 
-	int n = rows_;
+	const int n = rows_;
 	matrix result(n, n * 2);
 	// Create the augmented matrix [A|I]
 	for (int i = 0; i < n; ++i) {
@@ -169,6 +169,14 @@ matrix matrix::inverse() const {
 	}
 
 	return inv;
+}
+
+matrix matrix::identity(const int size) {
+	matrix result(size, size);
+	for (int i = 0; i < size; ++i) {
+		result(i, i) = 1;
+	}
+	return result;
 }
 
 

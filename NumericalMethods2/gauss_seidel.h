@@ -3,7 +3,7 @@
 
 class gauss_seidel final : public solution {
 public:
-	std::tuple<matrix, int, int> solve(const matrix& a, const matrix& b) override;
+	std::tuple<matrix, int, int, std::vector<double>> solve(const matrix& a, const matrix& b) override;
 
 private:
 	static matrix get_lower_triangle(const matrix& a);

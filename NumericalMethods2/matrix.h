@@ -44,6 +44,8 @@ public:
 
 	[[nodiscard]] matrix inverse() const;
 
+	[[nodiscard]] static matrix identity(int size);
+
 	template <typename T>
 	void make_random(int start, int end);
 
