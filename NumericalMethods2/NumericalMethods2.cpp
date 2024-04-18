@@ -33,14 +33,6 @@ int main() {
 	constexpr int a2 = -1;
 	constexpr int a3 = -1;
 
-	//present_jacobi_method(a, b);
-	//present_gauss_method(a, b);
-	//present_lu_method(a, b);
-
-	std::cout << "N" << '\t' << "Jacobi time, norm" << '\t';
-	std::cout << "Gauss time, norm" << '\t';
-	std::cout << "LU time, norm" << '\n';
-
 	for (const auto size : MATRIX_SIZES) {
 		matrix a(size, size);
 		a.fill_five_diagonals(a1, a2, a3);
@@ -49,11 +41,35 @@ int main() {
 		b.fill_vector_with_sine(F_PARAM);
 
 		std::cout << size << '\t';
+
 		present_jacobi_method(a, b);
 		present_gauss_method(a, b);
-		//present_lu_method(a, b);
+		present_lu_method(a, b);
+
 		std::cout << '\n';
 	}
+
+	//present_jacobi_method(a, b);
+	//present_gauss_method(a, b);
+	//present_lu_method(a, b);
+
+	//std::cout << "N" << '\t' << "Jacobi time, norm" << '\t';
+	//std::cout << "Gauss time, norm" << '\t';
+	//std::cout << "LU time, norm" << '\n';
+
+	//for (const auto size : MATRIX_SIZES) {
+	//	matrix a(size, size);
+	//	a.fill_five_diagonals(a1, a2, a3);
+
+	//	matrix b(size, 1);
+	//	b.fill_vector_with_sine(F_PARAM);
+
+	//	std::cout << size << '\t';
+	//	present_jacobi_method(a, b);
+	//	present_gauss_method(a, b);
+	//	//present_lu_method(a, b);
+	//	std::cout << '\n';
+	//}
 
 	return 0;
 }
@@ -73,7 +89,7 @@ void present_jacobi_method(const matrix& a, const matrix& b) {
 	//	<< "\nDuration: " << duration
 	//	<< "ms\nLast norm: " << std::scientific << std::setprecision(DISPLAY_PRECISION) << norms.back() << '\n';
 
-	std::cout << duration << '\t' << norms.back() << '\t';
+	std::cout << duration << '\t';
 }
 
 void present_gauss_method(const matrix& a, const matrix& b) {
@@ -81,6 +97,8 @@ void present_gauss_method(const matrix& a, const matrix& b) {
 
 	const std::unique_ptr<solution> gauss_solver = std::make_unique<gauss_seidel>();
 	const auto [sol_gauss, iterations, duration, norms] = gauss_solver->solve(a, b);
+
+	//std::cout << norms.size();
 
 	//for (const auto norm : norms)
 	//	std::cout << norm << '\n';
@@ -91,7 +109,7 @@ void present_gauss_method(const matrix& a, const matrix& b) {
 	//	<< "\nDuration: " << duration
 	//	<< "ms\nLast norm: " << std::scientific << std::setprecision(DISPLAY_PRECISION) << norms.back() << '\n';
 
-	std::cout << duration << '\t' << norms.back() << '\t';
+	std::cout << duration << '\t';
 }
 
 void present_lu_method(const matrix& a, const matrix& b) {
@@ -103,5 +121,5 @@ void present_lu_method(const matrix& a, const matrix& b) {
 	//std::cout << "\nDuration: " << duration
 	//	<< "ms\nNorm: " << std::scientific << std::setprecision(DISPLAY_PRECISION) << norms.back() << '\n';
 
-	std::cout << duration << '\t' << norms.back() << '\t';
+	std::cout << duration << '\t';
 }
