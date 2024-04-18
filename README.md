@@ -14,7 +14,7 @@ The purpose of the project is to implement and analyze two iterative methods (Ja
 OpenMP api was used for parallel computing
 
 ```cpp    
-    #pragma omp parallel for
+#pragma omp parallel for
 ```
 
 
