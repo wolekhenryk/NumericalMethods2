@@ -51,7 +51,7 @@ int main() {
 		std::cout << size << '\t';
 		present_jacobi_method(a, b);
 		present_gauss_method(a, b);
-		present_lu_method(a, b);
+		//present_lu_method(a, b);
 		std::cout << '\n';
 	}
 
@@ -94,7 +94,7 @@ void present_gauss_method(const matrix& a, const matrix& b) {
 	std::cout << duration << '\t' << norms.back() << '\t';
 }
 
-void present_lu_method(const matrix&a, const matrix& b) {
+void present_lu_method(const matrix& a, const matrix& b) {
 	//std::cout << "\n\nLU method\n\n";
 
 	const std::unique_ptr<solution> lu_solver = std::make_unique<direct>();

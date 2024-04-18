@@ -1,4 +1,5 @@
 #include "direct.h"
+#include <omp.h>
 
 #include <chrono>
 
@@ -24,7 +25,6 @@ std::tuple<matrix, matrix> direct::lu_decomposition(const matrix& a) {
 	auto u = a;
 
 	for (int i = 0; i < n; i++) {
-
 #pragma omp parallel for
 		for (int j = i + 1; j < n; j++) {
 			if (u(i, i) == 0.0f)

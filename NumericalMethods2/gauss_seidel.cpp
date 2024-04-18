@@ -13,9 +13,10 @@ std::tuple<matrix, int, int, std::vector<double>> gauss_seidel::solve(const matr
 
 	int iteration = 0;
 	for (; iteration < MAX_ITERATIONS; iteration++) {
-		matrix old_x = x; // Copy current x for convergence check
+		double max_change = 0.0;
 
 		for (int i = 0; i < n; i++) {
+			const double old_value = x(i, 0); // Store old value of x(i) for change calculation
 			double sum = b(i, 0); // Start with the corresponding b element
 			for (int j = 0; j < n; j++) {
 				if (i != j) {
@@ -23,14 +24,14 @@ std::tuple<matrix, int, int, std::vector<double>> gauss_seidel::solve(const matr
 				}
 			}
 			x(i, 0) = sum / a(i, i); // Update x(i) immediately for use in next row calculations
+			if (const double change = abs(x(i, 0) - old_value); change > max_change) {
+				max_change = change;
+			}
 		}
 
-		// Compute the norm of the difference vector between successive iterations
-		matrix diff = x - old_x;
-		double error = diff.norm();
-		norms.push_back(error);
+		norms.push_back(max_change); // Push back the max change instead of the norm
 
-		if (error < EPSILON)
+		if (max_change < EPSILON)
 			break;
 	}
 
