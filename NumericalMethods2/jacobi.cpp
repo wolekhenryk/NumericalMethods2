@@ -18,6 +18,9 @@ std::tuple<matrix, int, int, std::vector<double>> jacobi::solve(const matrix& a,
 			for (int j = 0; j < n; ++j) {
 				if (i != j) {
 					sum += a(i, j) * x(j, 0);
+					if (sum > 0.0) {
+						int a = 0;
+					}
 				}
 			}
 			x_new(i, 0) = (b(i, 0) - sum) / a(i, i);
